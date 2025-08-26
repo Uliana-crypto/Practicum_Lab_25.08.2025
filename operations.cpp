@@ -1,0 +1,188 @@
+#include "operations.h"
+
+void checkFile(std::ifstream& file)
+{
+	if (!file.good())
+	{
+		throw std::runtime_error("File does not exist");
+	}
+	if (!file)
+	{
+		throw std::runtime_error("The file does not open");
+	}
+	if (file.peek() == EOF)
+	{
+		throw std::runtime_error("File is empty");
+	}
+}
+
+void checkOutputFile(std::fstream& fout)
+{
+	if (!fout.good())
+	{
+		throw std::runtime_error("File does not exist\n");
+	}
+	if (!fout)
+	{
+		throw std::runtime_error("The file does not open\n");
+	}
+}
+
+int32_t countPeople(std::ifstream& fin)
+{
+	fin.clear();
+	fin.seekg(0, std::ios::beg);
+	std::string tmp;
+	int32_t counter{};
+	while (getline(fin, tmp))
+	{
+		++counter;
+	}
+	return counter;
+}
+
+void inputPeople(std::ifstream& fin, std::string* people, int32_t size)
+{
+	fin.clear();
+	fin.seekg(0, std::ios::beg);
+	for (int32_t i = 0; i < size;++i)
+	{
+		getline(fin, people[i]);
+	}
+}
+
+void fillBinary(std::fstream& bin, std::string* people, int32_t size)
+{
+	for (int32_t i = 0; i < size; ++i)
+	{
+		bin.write(reinterpret_cast<char*>(&people[i]), sizeof people[i]);
+	}
+}
+
+void fillStructuresFromStudents(std::ifstream& fin, FullStudent* students, int32_t size)
+{
+	fin.clear();
+	fin.seekg(0, std::ios::beg);
+	for (int32_t i = 0; i < size; ++i)
+	{
+		fin >> students[i].recordBook;
+		fin.ignore();
+		getline(fin, students[i].surname, ';');
+		getline(fin, students[i].name, ';');
+		getline(fin, students[i].patronymic);
+	}
+}
+
+void fillStructuresFromMarks(std::ifstream& fin, GradeRecord* students, int32_t size)
+{
+	fin.clear();
+	fin.seekg(0, std::ios::beg);
+	std::string line;
+	for (int32_t i{}; i < size; i++)
+	{
+		fin >> students[i].group;
+		fin.ignore();
+		fin >> students[i].recordBook;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].gradeMA;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].gradeGEO;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].gradePROG;
+		fin.ignore();
+	}
+}
+
+void mergeSurnamesMarks(FullStudent* students_a, GradeRecord* students_b, int32_t size_a, int32_t size_b)
+{
+	for (int32_t i = 0; i < size_a; ++i)
+	{
+		for (int32_t k = 0; k < size_b; ++k)
+		{
+			if (students_a[i].recordBook == students_b[k].recordBook)
+			{
+				students_a[i].group = students_b[k].group;
+				students_a[i].gradeMA = students_b[k].gradeMA;
+				students_a[i].gradeGEO = students_b[k].gradeGEO;
+				students_a[i].gradePROG = students_b[k].gradePROG;
+			}
+		}
+	}
+}
+
+void makeMainBin(std::fstream& bin, FullStudent* students, int32_t size)
+{
+	std::string line;
+	for (int32_t i = 0; i < size; ++i)
+	{
+		line = std::to_string(students[i].group);
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = std::to_string(students[i].recordBook);
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = students[i].surname;
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = students[i].name;
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = students[i].patronymic;
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = std::to_string(students[i].gradeMA);
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = std::to_string(students[i].gradeGEO);
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = std::to_string(students[i].gradePROG);
+		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+	}
+}
+
+void makeAverageBin(std::fstream& bin, StudentWithAverage* students, int32_t size)
+{
+	for (int32_t i = 0; i < size; ++i)
+	{
+		bin.write(reinterpret_cast<char*>(&students[i]), sizeof students[i]);
+	}
+}
+
+void fillStructuresFromAverageMarks(std::fstream& fin, StudentWithAverage* students, int32_t size)
+{
+	fin.clear();
+	fin.seekg(0, std::ios::beg);
+	std::string line;
+	for (int32_t i = 0; i < size; ++i)
+	{
+		fin >> students[i].group;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].recordBook;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].surname;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].name;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].patronymic;
+		fin.ignore();
+		getline(fin, line, ';');
+		fin >> students[i].averageGrade;
+		fin.ignore();
+	}
+}
+
+void calculateAverageAndWrite(std::fstream& outBin, FullStudent* full, StudentWithAverage* avgList, int32_t size)
+{
+
+	for (int32_t i = 0; i < size; ++i) 
+	{
+		avgList[i].group = full[i].group;
+		avgList[i].recordBook = full[i].recordBook;
+		avgList[i].surname = full[i].surname;
+		avgList[i].name = full[i].name;
+		avgList[i].patronymic = full[i].patronymic;
+		avgList[i].averageGrade = (full[i].gradeMA + full[i].gradeGEO + full[i].gradePROG) / 3.0f;
+	}
+}
+
