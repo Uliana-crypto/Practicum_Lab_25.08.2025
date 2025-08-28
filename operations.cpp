@@ -201,8 +201,26 @@ void writeString(std::fstream& bin, std::string& str)
 	bin.write(str.c_str(), len);
 }
 
+void successFul(std::fstream& bin, FullStudent* students, int32_t size)
+{
+	std::cout << "List of excellent students, consisting of last name, group number, record book number\n";
+	for (int32_t i = 0; i < size; ++i)
+	{
+		if (students[i].gradeMA > 8 && students[i].gradeGEO > 8 && students[i].gradePROG > 8)
+		{
+			writeString(bin, students[i].surname);
+			bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
+			bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
+
+			printStudentToConsole(students[i].surname, students[i].group, students[i].recordBook);
+
+		}
+	}
+}
+
 void makeFailingBin(std::fstream& bin, FullStudent* students, int32_t size)
 {
+	std::cout << "List of unsuccessful students, consisting of last name, group number, record book number\n";
 	for (int32_t i = 0; i < size; ++i)
 	{
 		if (students[i].gradeMA < 4 || students[i].gradeGEO < 4 || students[i].gradePROG < 4)
@@ -292,6 +310,7 @@ void mergeSort(FullStudent* arr, int32_t left, int32_t right, FullStudent* temp)
 
 void writeSortedFailing(std::fstream& bin, FullStudent* failing, int32_t size)
 {
+	std::cout << "Sorted students\n";
 	for (int32_t i = 0; i < size; ++i)
 	{
 		bin.write(reinterpret_cast<char*>(&failing[i].group), sizeof failing[i].group);

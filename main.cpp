@@ -60,14 +60,21 @@ int main()
 		makeFailingBin(fail_bin, students, size_p);
 		fail_bin.close();
 
+		std::fstream fail_bin_a("SuccessfulStudents.bin", std::ios::in | std::ios::out | std::ios::binary);
+		checkOutputFile(fail_bin_a);
+		successFul(fail_bin_a, students, size_p);
+		fail_bin_a.close();
+
 		FullStudent* failing = new FullStudent[size_p];
 		int32_t failCount = extractFailingStudents(students, size_p, failing);
 		FullStudent* temp = new FullStudent[failCount];
 		mergeSort(failing, 0, failCount, temp);
+
 		std::fstream sortedFailBin("SortedFailing.bin", std::ios::in | std::ios::out | std::ios::binary);
 		checkOutputFile(sortedFailBin);
 		writeSortedFailing(sortedFailBin, failing, failCount);
 		sortedFailBin.close();
+
 
 		delete[] students;
 		delete[] marks;

@@ -59,5 +59,7 @@ int32_t countFailingStudents(FullStudent*, int32_t);
 void writeSortedFailing(std::fstream&, FullStudent*, int32_t);
 int32_t extractFailingStudents(FullStudent*, int32_t, FullStudent*);
 void printFailingStudentsToConsole(FullStudent*, int32_t);
+void saveStudentsToTextFile(std::string&, FullStudent*, int32_t);
+void successFul(std::fstream&, FullStudent*, int32_t);
 
 #endif
