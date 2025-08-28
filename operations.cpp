@@ -143,7 +143,12 @@ void makeAverageBin(std::fstream& bin, StudentWithAverage* students, int32_t siz
 {
 	for (int32_t i = 0; i < size; ++i)
 	{
-		bin.write(reinterpret_cast<char*>(&students[i]), sizeof students[i]);
+		bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
+		bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
+		writeString(bin, students[i].surname);
+		writeString(bin, students[i].name);
+		writeString(bin, students[i].patronymic);
+		bin.write(reinterpret_cast<char*>(&students[i].averageGrade), sizeof students[i].averageGrade);
 		printAverageGradeToCons(students[i].recordBook, students[i].surname, students[i].name, students[i].patronymic, students[i].averageGrade);
 	}
 }
@@ -240,4 +245,81 @@ void printStudentToConsole(int32_t group, int32_t recordBook, std::string& surna
 		<< "Grade GEO:   " << gradeGEO << '\n'
 		<< "Grade PROG:  " << gradePROG << '\n'
 		<< "-----------------------------\n";
+}
+
+
+bool compareFailing(FullStudent& a, FullStudent& b)
+{
+	if (a.group != b.group)
+	{
+		return a.group < b.group;
+	}
+	return a.surname < b.surname;
+}
+
+void merge(FullStudent* arr, int32_t left, int32_t mid, int32_t right, FullStudent* temp)
+{
+	int32_t i = left, j = mid, k = left;
+	while (i < mid && j < right)
+	{
+		if (compareFailing(arr[i], arr[j]))
+			temp[k++] = arr[i++];
+		else
+			temp[k++] = arr[j++];
+	}
+	while (i < mid)
+	{
+		temp[k++] = arr[i++];
+	}
+	while (j < right)
+	{
+		temp[k++] = arr[j++];
+	}
+	for (int32_t l = left; l < right; ++l)
+	{
+		arr[l] = temp[l];
+	}
+}
+
+void mergeSort(FullStudent* arr, int32_t left, int32_t right, FullStudent* temp)
+{
+	if (right - left <= 1) return;
+	int32_t mid = (left + right) / 2;
+	mergeSort(arr, left, mid, temp);
+	mergeSort(arr, mid, right, temp);
+	merge(arr, left, mid, right, temp);
+}
+
+void writeSortedFailing(std::fstream& bin, FullStudent* failing, int32_t size)
+{
+	for (int32_t i = 0; i < size; ++i)
+	{
+		bin.write(reinterpret_cast<char*>(&failing[i].group), sizeof failing[i].group);
+		writeString(bin, failing[i].surname);
+		bin.write(reinterpret_cast<char*>(&failing[i].recordBook), sizeof failing[i].recordBook);
+	}
+	printFailingStudentsToConsole(failing, size);
+}
+
+int32_t extractFailingStudents(FullStudent* students, int32_t size, FullStudent* failing)
+{
+	int32_t count = 0;
+	for (int32_t i = 0; i < size; ++i)
+	{
+		if (students[i].gradeMA < 4 || students[i].gradeGEO < 4 || students[i].gradePROG < 4)
+		{
+			failing[count++] = students[i];
+		}
+	}
+	return count;
+}
+
+void printFailingStudentsToConsole(FullStudent* failing, int32_t count)
+{
+	for (int32_t i = 0; i < count; ++i) {
+		std::cout << "Group: " << failing[i].group << '\n'
+			<< "Surname: " << failing[i].surname << '\n'
+			<< "recordBook: " << failing[i].recordBook << '\n'
+			<< "-----------------------------\n";
+	}
 }

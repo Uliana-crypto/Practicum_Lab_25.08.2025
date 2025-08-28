@@ -34,7 +34,6 @@ struct StudentWithAverage {
     float averageGrade = 0.0f;
 };
 
-
 void checkOutputFile(std::fstream&);
 void checkFile(std::ifstream&);
 int32_t countPeople(std::ifstream&);
@@ -52,5 +51,13 @@ void makeFailingBin(std::fstream&, FullStudent*, int32_t);
 void printStudentToConsole(std::string&, int32_t, int32_t);
 void printAverageGradeToCons(int32_t, std::string&, std::string&, std::string&, float);
 void printStudentToConsole(int32_t, int32_t, std::string&, std::string&, std::string&, int32_t, int32_t, int32_t);
+bool isFailing(FullStudent&);
+bool compareFailing(FullStudent&, FullStudent&);
+void merge(FullStudent*, int32_t, int32_t, int32_t, FullStudent*);
+void mergeSort(FullStudent*, int32_t, int32_t, FullStudent*);
+int32_t countFailingStudents(FullStudent*, int32_t);
+void writeSortedFailing(std::fstream&, FullStudent*, int32_t);
+int32_t extractFailingStudents(FullStudent*, int32_t, FullStudent*);
+void printFailingStudentsToConsole(FullStudent*, int32_t);
 
 #endif
