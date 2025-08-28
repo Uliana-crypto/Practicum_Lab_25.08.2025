@@ -34,11 +34,7 @@ struct StudentWithAverage {
     float averageGrade = 0.0f;
 };
 
-void isValidGroup(const std::string&);
-void isValidRecordBook(const std::string&);
-void isValidSubject(const std::string&);
-void isValidGrade(const std::string&);
-void validateGradeLine(const std::string&);
+
 void checkOutputFile(std::fstream&);
 void checkFile(std::ifstream&);
 int32_t countPeople(std::ifstream&);
@@ -51,5 +47,10 @@ void mergeSurnamesMarks(FullStudent*, GradeRecord*, int32_t, int32_t);
 void makeMainBin(std::fstream&, FullStudent*, int32_t);
 void calculateAverageAndWrite(std::fstream&, FullStudent*, StudentWithAverage*, int32_t);
 void makeAverageBin(std::fstream&, StudentWithAverage*, int32_t);
+void writeString(std::fstream&, std::string&);
+void makeFailingBin(std::fstream&, FullStudent*, int32_t);
+void printStudentToConsole(std::string&, int32_t, int32_t);
+void printAverageGradeToCons(int32_t, std::string&, std::string&, std::string&, float);
+void printStudentToConsole(int32_t, int32_t, std::string&, std::string&, std::string&, int32_t, int32_t, int32_t);
 
 #endif

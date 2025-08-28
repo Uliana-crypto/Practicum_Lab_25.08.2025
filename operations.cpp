@@ -45,7 +45,7 @@ void inputPeople(std::ifstream& fin, std::string* people, int32_t size)
 {
 	fin.clear();
 	fin.seekg(0, std::ios::beg);
-	for (int32_t i = 0; i < size;++i)
+	for (int32_t i = 0; i < size; ++i)
 	{
 		getline(fin, people[i]);
 	}
@@ -134,6 +134,8 @@ void makeMainBin(std::fstream& bin, FullStudent* students, int32_t size)
 		bin.write(reinterpret_cast<char*>(&line), sizeof line);
 		line = std::to_string(students[i].gradePROG);
 		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		printStudentToConsole(students[i].group, students[i].recordBook, students[i].surname, students[i].name, students[i].patronymic, students[i].gradeMA, students[i].gradeGEO, students[i].gradePROG);
+
 	}
 }
 
@@ -142,6 +144,7 @@ void makeAverageBin(std::fstream& bin, StudentWithAverage* students, int32_t siz
 	for (int32_t i = 0; i < size; ++i)
 	{
 		bin.write(reinterpret_cast<char*>(&students[i]), sizeof students[i]);
+		printAverageGradeToCons(students[i].recordBook, students[i].surname, students[i].name, students[i].patronymic, students[i].averageGrade);
 	}
 }
 
@@ -175,7 +178,7 @@ void fillStructuresFromAverageMarks(std::fstream& fin, StudentWithAverage* stude
 void calculateAverageAndWrite(std::fstream& outBin, FullStudent* full, StudentWithAverage* avgList, int32_t size)
 {
 
-	for (int32_t i = 0; i < size; ++i) 
+	for (int32_t i = 0; i < size; ++i)
 	{
 		avgList[i].group = full[i].group;
 		avgList[i].recordBook = full[i].recordBook;
@@ -186,3 +189,55 @@ void calculateAverageAndWrite(std::fstream& outBin, FullStudent* full, StudentWi
 	}
 }
 
+void writeString(std::fstream& bin, std::string& str)
+{
+	int32_t len = static_cast<int32_t>(str.size());
+	bin.write(reinterpret_cast<char*>(&len), sizeof len);
+	bin.write(str.c_str(), len);
+}
+
+void makeFailingBin(std::fstream& bin, FullStudent* students, int32_t size)
+{
+	for (int32_t i = 0; i < size; ++i)
+	{
+		if (students[i].gradeMA < 4 || students[i].gradeGEO < 4 || students[i].gradePROG < 4)
+		{
+			writeString(bin, students[i].surname);
+			bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
+			bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
+
+			printStudentToConsole(students[i].surname, students[i].group, students[i].recordBook);
+
+		}
+	}
+}
+void printAverageGradeToCons(int32_t recordBook, std::string& surname, std::string& name, std::string& patronymic, float averageGrade)
+{
+
+	std::cout << "Record Book: " << recordBook << "\n"
+		<< "Surname:     " << surname << "\n"
+		<< "Name:        " << name << "\n"
+		<< "Patronymic:  " << patronymic << "\n"
+		<< "Grade PROG:  " << averageGrade << "\n"
+		<< "-----------------------------\n";
+
+}
+void printStudentToConsole(std::string& surname, int32_t group, int32_t recordBook)
+{
+	std::cout << "Surname:     " << surname << "\n"
+		<< "Group:       " << group << "\n"
+		<< "Record Book: " << recordBook << "\n"
+		<< "-----------------------------\n";
+}
+void printStudentToConsole(int32_t group, int32_t recordBook, std::string& surname, std::string& name, std::string& patronymic, int32_t gradeMA, int32_t gradeGEO, int32_t gradePROG)
+{
+	std::cout << "Group: " << group << '\n'
+		<< "Record Book: " << recordBook << '\n'
+		<< "Surname:     " << surname << '\n'
+		<< "Name:        " << name << '\n'
+		<< "Patronymic:  " << patronymic << '\n'
+		<< "Grade MA:    " << gradeMA << '\n'
+		<< "Grade GEO:   " << gradeGEO << '\n'
+		<< "Grade PROG:  " << gradePROG << '\n'
+		<< "-----------------------------\n";
+}

@@ -45,41 +45,26 @@ int main()
 		std::fstream stud_bin("Merge.bin", std::ios::in | std::ios::out | std::ios::binary);
 		checkOutputFile(stud_bin);
 		makeMainBin(stud_bin, students, size_p);
+		stud_bin.close();
 
-		for (int32_t i = 0; i < size_p; ++i) {
-			std::cout << "Group: " << students[i].group << '\n'
-				<< "Record Book: " << students[i].recordBook << '\n'
-				<< "Surname:     " << students[i].surname << '\n'
-				<< "Name:        " << students[i].name << '\n'
-				<< "Patronymic:  " << students[i].patronymic << '\n'
-				<< "Grade MA:    " << students[i].gradeMA << '\n'
-				<< "Grade GEO:   " << students[i].gradeGEO << '\n'
-				<< "Grade PROG:  " << students[i].gradePROG << '\n'
-				<< "-----------------------------\n";
-		}
-
-		std::fstream avg_bin("Average.bin", std::ios::in | std::ios::out | std::ios::binary);
+		std::fstream avg_bin("AverageScore.bin", std::ios::in | std::ios::out | std::ios::binary);
 		checkOutputFile(avg_bin);
 		StudentWithAverage* avgList = new StudentWithAverage[size_p];
 		fillStructuresFromAverageMarks(avg_bin, avgList, size_p);
 		calculateAverageAndWrite(avg_bin, students, avgList, size_p);
 		makeAverageBin(avg_bin, avgList, size_p);
-		for (int32_t i = 0; i < size_p; ++i) {
-			std::cout << "Record Book: " << avgList[i].recordBook << "\n"
-				<< "Surname:     " << avgList[i].surname << "\n"
-				<< "Name:        " << avgList[i].name << "\n"
-				<< "Patronymic:  " << avgList[i].patronymic << "\n"
-				<< "Grade PROG:  " << avgList[i].averageGrade << "\n"
-				<< "-----------------------------\n";
-		}
-
 		avg_bin.close();
+
+		std::fstream fail_bin("FailingStudents.bin", std::ios::in | std::ios::out | std::ios::binary);
+		checkOutputFile(fail_bin);
+		makeFailingBin(fail_bin, students, size_p);
+		fail_bin.close();
 
 		delete[] avgList;
 		delete[] students;
 		delete[] marks;
 	}
-	catch (const std::exception& e) 
+	catch (const std::exception& e)
 	{
 		std::cout << e.what() << '\n';
 	}
