@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 struct FullStudent {
     int32_t group{};
@@ -31,35 +32,45 @@ struct StudentWithAverage {
     std::string surname;
     std::string name;
     std::string patronymic;
-    float averageGrade = 0.0f;
+    double averageGrade = 0.0;
 };
 
-void checkOutputFile(std::fstream&);
-void checkFile(std::ifstream&);
-int32_t countPeople(std::ifstream&);
-void inputPeople(std::ifstream&, std::string*, int32_t);
-void fillBinary(std::fstream&, std::string*, int32_t);
-void fillStructuresFromStudents(std::ifstream&, FullStudent*, int32_t);
-void fillStructuresFromMarks(std::ifstream&, GradeRecord*, int32_t);
-void fillStructuresFromAverageMarks(std::fstream& fin, StudentWithAverage*, int32_t);
-void mergeSurnamesMarks(FullStudent*, GradeRecord*, int32_t, int32_t);
-void makeMainBin(std::fstream&, FullStudent*, int32_t);
-void calculateAverageAndWrite(std::fstream&, FullStudent*, StudentWithAverage*, int32_t);
-void makeAverageBin(std::fstream&, StudentWithAverage*, int32_t);
-void writeString(std::fstream&, std::string&);
-void makeFailingBin(std::fstream&, FullStudent*, int32_t);
-void printStudentToConsole(std::string&, int32_t, int32_t);
-void printAverageGradeToCons(int32_t, std::string&, std::string&, std::string&, float);
-void printStudentToConsole(int32_t, int32_t, std::string&, std::string&, std::string&, int32_t, int32_t, int32_t);
+void CheckOutputFile(std::fstream&);
+void CheckFile(std::ifstream&);
+int32_t CountPeople(std::ifstream&);
+void InputPeople(std::ifstream&, std::string*, int32_t);
+void FillBinary(std::fstream&, std::string*, int32_t);
+void FillStructuresFromStudents(std::ifstream&, FullStudent*, int32_t);
+void FillStructuresFromMarks(std::ifstream&, GradeRecord*, int32_t);
+void FillStructuresFromAverageMarks(std::fstream& fin, StudentWithAverage*, int32_t);
+void MergeSurnamesMarks(FullStudent*, GradeRecord*, int32_t, int32_t);
+void MakeBin(std::fstream&, FullStudent*, int32_t);
+void CalculateAverageAndWrite(std::fstream&, FullStudent*, StudentWithAverage*, int32_t);
+void MakeAverageBin(std::fstream&, StudentWithAverage*, int32_t);
+void WriteString(std::fstream&, std::string&);
+void MakeFailingBin(std::fstream&, FullStudent*, int32_t);
+void PrintStudentToConsole(std::string&, int32_t, int32_t);
+void PrintAverageGradeToCons(int32_t, std::string&, std::string&, std::string&, double);
+void PrintStudentToConsole(int32_t, int32_t, std::string&, std::string&, std::string&, int32_t, int32_t, int32_t);
 bool isFailing(FullStudent&);
-bool compareFailing(FullStudent&, FullStudent&);
-void merge(FullStudent*, int32_t, int32_t, int32_t, FullStudent*);
-void mergeSort(FullStudent*, int32_t, int32_t, FullStudent*);
+bool CompareFailing(FullStudent&, FullStudent&);
+bool CompareByAvg(FullStudent&, FullStudent&);
+void Merge(FullStudent*, int32_t, int32_t, int32_t, FullStudent*, bool (*compareFunc)(FullStudent&, FullStudent&));
+void MergeSort(FullStudent*, int32_t, int32_t, FullStudent*, bool (*compareFunc)(FullStudent&, FullStudent&));
 int32_t countFailingStudents(FullStudent*, int32_t);
-void writeSortedFailing(std::fstream&, FullStudent*, int32_t);
-int32_t extractFailingStudents(FullStudent*, int32_t, FullStudent*);
-void printFailingStudentsToConsole(FullStudent*, int32_t);
+void WriteSortedFailing(std::fstream&, FullStudent*, int32_t);
+int32_t ExtractFailingStudents(FullStudent*, int32_t, FullStudent*);
+void PrintFailingStudentsToConsole(FullStudent*, int32_t);
 void saveStudentsToTextFile(std::string&, FullStudent*, int32_t);
-void successFul(std::fstream&, FullStudent*, int32_t);
+void SuccessFul(std::fstream&, FullStudent*, int32_t);
+bool CompareAlphabetically(FullStudent&, FullStudent&);
+void PrintGradeSheet(FullStudent*, int32_t, int32_t);
+void PrintAvgGrade(FullStudent*, int32_t, int32_t);
+FullStudent* GenerateGroupGradeSheet(FullStudent*, int32_t, int32_t, int32_t&);
+FullStudent* GenerateGroupGradeAvg(FullStudent*, int32_t, int32_t, int32_t&);
+int32_t CountGroup(std::ifstream&, int32_t);
+void GoodStud(FullStudent*, int32_t);
+void ReadFullStudFromBin(std::fstream&, FullStudent*, int32_t);
+void BinToTxt(const std::string&, const std::string&);
 
 #endif
