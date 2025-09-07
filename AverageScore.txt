@@ -1,0 +1,1 @@
+Name: 4, Surname: 456348, Patronymic: Petrov, Group: Petr, Record Book: Ivanovich, Grades: MA=2.666667, GEO=4, PROG=456345

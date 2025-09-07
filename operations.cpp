@@ -38,6 +38,10 @@ int32_t CountPeople(std::ifstream& fin)
 	{
 		++counter;
 	}
+	if (counter == 0)
+	{
+		throw std::runtime_error("No lines were found");
+	}
 	return counter;
 }
 
@@ -55,7 +59,9 @@ void FillBinary(std::fstream& bin, std::string* people, int32_t size)
 {
 	for (int32_t i = 0; i < size; ++i)
 	{
-		bin.write(reinterpret_cast<char*>(&people[i]), sizeof people[i]);
+		int32_t len = people[i].size();
+		bin.write((char*)&len, sizeof(len));
+		bin.write(people[i].c_str(), len);
 	}
 }
 
@@ -116,37 +122,46 @@ void MergeSurnamesMarks(FullStudent* students_a, GradeRecord* students_b, int32_
 void MakeBin(std::fstream& bin, FullStudent* students, int32_t size)
 {
 	std::string line;
-	for (int32_t i = 0; i < size; ++i)
+	for (int32_t i{}; i < size; ++i)
 	{
-		line = std::to_string(students[i].group);
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = std::to_string(students[i].recordBook);
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = students[i].surname;
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = students[i].name;
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = students[i].patronymic;
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = std::to_string(students[i].gradeMA);
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = std::to_string(students[i].gradeGEO);
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
-		line = std::to_string(students[i].gradePROG);
-		bin.write(reinterpret_cast<char*>(&line), sizeof line);
+		line = students[i].name + ';';
+		bin.write(line.c_str(), line.size());
+		line = students[i].surname + ';';
+		bin.write(line.c_str(), line.size());
+		line = students[i].patronymic + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].group) + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].recordBook) + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].gradeMA) + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].gradeGEO) + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].gradePROG) + '\n';
+		bin.write(line.c_str(), line.size());
 	}
 }
 
 void MakeAverageBin(std::fstream& bin, StudentWithAverage* students, int32_t size)
 {
+	bin.clear();
+	bin.seekp(0, std::ios::beg);
+	std::string line;
 	for (int32_t i = 0; i < size; ++i)
 	{
-		bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
-		bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
-		WriteString(bin, students[i].surname);
-		WriteString(bin, students[i].name);
-		WriteString(bin, students[i].patronymic);
-		bin.write(reinterpret_cast<char*>(&students[i].averageGrade), sizeof students[i].averageGrade);
+		line = std::to_string(students[i].group) + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].recordBook) + ';';
+		bin.write(line.c_str(), line.size());
+		line = students[i].surname + ';';
+		bin.write(line.c_str(), line.size());
+		line = students[i].name + ';';
+		bin.write(line.c_str(), line.size());
+		line = students[i].patronymic + ';';
+		bin.write(line.c_str(), line.size());
+		line = std::to_string(students[i].averageGrade) + ';';
+		bin.write(line.c_str(), line.size());
 		PrintAverageGradeToCons(students[i].recordBook, students[i].surname, students[i].name, students[i].patronymic, students[i].averageGrade);
 	}
 }
@@ -188,47 +203,51 @@ void CalculateAverageAndWrite(std::fstream& outBin, FullStudent* full, StudentWi
 		avgList[i].surname = full[i].surname;
 		avgList[i].name = full[i].name;
 		avgList[i].patronymic = full[i].patronymic;
-		avgList[i].averageGrade = (full[i].gradeMA + full[i].gradeGEO + full[i].gradePROG) / 3;
+		avgList[i].averageGrade = (full[i].gradeMA + full[i].gradeGEO + full[i].gradePROG) / 3.0;
 	}
-}
-
-void WriteString(std::fstream& bin, std::string& str)
-{
-	int32_t len = static_cast<int32_t>(str.size());
-	bin.write(reinterpret_cast<char*>(&len), sizeof len);
-	bin.write(str.c_str(), len);
 }
 
 void SuccessFul(std::fstream& bin, FullStudent* students, int32_t size)
 {
+	std::string line;
+	bool found = false;
 	std::cout << "List of excellent students, consisting of last name, group number, record book number\n";
 	for (int32_t i = 0; i < size; ++i)
 	{
 		if (students[i].gradeMA > 8 && students[i].gradeGEO > 8 && students[i].gradePROG > 8)
 		{
-			WriteString(bin, students[i].surname);
-			bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
-			bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
-
+			found = true;
+			line = students[i].surname + ';';
+			bin.write(line.c_str(), line.size());
+			line = students[i].group + ';';
+			bin.write(line.c_str(), line.size());
+			line = students[i].recordBook + ';';
+			bin.write(line.c_str(), line.size());
 			PrintStudentToConsole(students[i].surname, students[i].group, students[i].recordBook);
 
 		}
+	}
+	if (!found)
+	{
+		std::cout << "No excellent students found\n";
 	}
 }
 
 void MakeFailingBin(std::fstream& bin, FullStudent* students, int32_t size)
 {
+	std::string line;
 	std::cout << "List of unsuccessful students, consisting of last name, group number, record book number\n";
 	for (int32_t i = 0; i < size; ++i)
 	{
 		if (students[i].gradeMA < 4 || students[i].gradeGEO < 4 || students[i].gradePROG < 4)
 		{
-			WriteString(bin, students[i].surname);
-			bin.write(reinterpret_cast<char*>(&students[i].group), sizeof students[i].group);
-			bin.write(reinterpret_cast<char*>(&students[i].recordBook), sizeof students[i].recordBook);
-
+			line = students[i].surname + ';';
+			bin.write(line.c_str(), line.size());
+			line = students[i].group + ';';
+			bin.write(line.c_str(), line.size());
+			line = students[i].recordBook + ';';
+			bin.write(line.c_str(), line.size());
 			PrintStudentToConsole(students[i].surname, students[i].group, students[i].recordBook);
-
 		}
 	}
 }
@@ -250,6 +269,7 @@ void PrintStudentToConsole(std::string& surname, int32_t group, int32_t recordBo
 		<< "Record Book: " << recordBook << "\n"
 		<< "-----------------------------\n";
 }
+
 void PrintStudentToConsole(int32_t group, int32_t recordBook, std::string& surname, std::string& name, std::string& patronymic, int32_t gradeMA, int32_t gradeGEO, int32_t gradePROG)
 {
 	std::cout << "Group: " << group << '\n'
@@ -262,7 +282,6 @@ void PrintStudentToConsole(int32_t group, int32_t recordBook, std::string& surna
 		<< "Grade PROG:  " << gradePROG << '\n'
 		<< "-----------------------------\n";
 }
-
 
 bool CompareFailing(FullStudent& a, FullStudent& b)
 {
@@ -283,7 +302,9 @@ bool CompareByAvg(FullStudent& a, FullStudent& b)
 
 void Merge(FullStudent* arr, int32_t left, int32_t mid, int32_t right, FullStudent* temp, bool (*compareFunc)(FullStudent&, FullStudent&))
 {
-	int32_t i = left, j = mid, k = left;
+	int32_t i = left;
+	int32_t j = mid;
+	int32_t k = left;
 	while (i < mid && j < right)
 	{
 		if (compareFunc(arr[i], arr[j]))
@@ -305,9 +326,13 @@ void Merge(FullStudent* arr, int32_t left, int32_t mid, int32_t right, FullStude
 	}
 }
 
-void MergeSort(FullStudent* arr, int32_t left, int32_t right, FullStudent* temp, bool (*compareFunc)(FullStudent&, FullStudent&))
+void MergeSort(FullStudent* arr, int32_t left, int32_t right, FullStudent* temp,
+	bool (*compareFunc)(FullStudent&, FullStudent&))
 {
-	if (right - left <= 1) return;
+	if (right - left <= 1)
+	{
+		return;
+	}
 	int32_t mid = (left + right) / 2;
 	MergeSort(arr, left, mid, temp, compareFunc);
 	MergeSort(arr, mid, right, temp, compareFunc);
@@ -316,12 +341,16 @@ void MergeSort(FullStudent* arr, int32_t left, int32_t right, FullStudent* temp,
 
 void WriteSortedFailing(std::fstream& bin, FullStudent* failing, int32_t size)
 {
+	std::string line;
 	std::cout << "Sorted students\n";
 	for (int32_t i = 0; i < size; ++i)
 	{
-		bin.write(reinterpret_cast<char*>(&failing[i].group), sizeof failing[i].group);
-		WriteString(bin, failing[i].surname);
-		bin.write(reinterpret_cast<char*>(&failing[i].recordBook), sizeof failing[i].recordBook);
+		line = failing[i].group + ';';
+		bin.write(line.c_str(), line.size());
+		line = failing[i].surname + ';';
+		bin.write(line.c_str(), line.size());
+		line = failing[i].recordBook + ';';
+		bin.write(line.c_str(), line.size());
 	}
 	PrintFailingStudentsToConsole(failing, size);
 }
@@ -335,6 +364,10 @@ int32_t ExtractFailingStudents(FullStudent* students, int32_t size, FullStudent*
 		{
 			failing[count++] = students[i];
 		}
+	}
+	if (count == 0)
+	{
+		std::cout << "No failing students found\n";
 	}
 	return count;
 }
@@ -389,12 +422,13 @@ FullStudent* GenerateGroupGradeSheet(FullStudent* students, int32_t totalSize, i
 			filtered[filteredSize++] = students[i];
 		}
 	}
-
-	if (filteredSize > 0) {
-		FullStudent* temp = new FullStudent[filteredSize];
-		MergeSort(filtered, 0, filteredSize, temp, CompareAlphabetically);
-		delete[] temp;
+	if (filteredSize == 0) {
+		delete[] filtered;
+		throw std::runtime_error("No students found in the specified group");
 	}
+	FullStudent* temp = new FullStudent[filteredSize];
+	MergeSort(filtered, 0, filteredSize, temp, CompareAlphabetically);
+	delete[] temp;
 
 	return filtered;
 }
@@ -408,99 +442,63 @@ FullStudent* GenerateGroupGradeAvg(FullStudent* students, int32_t totalSize, int
 			filtered[filteredSize++] = students[i];
 		}
 	}
-
-	if (filteredSize > 0) {
-		FullStudent* temp = new FullStudent[filteredSize];
-		MergeSort(filtered, 0, filteredSize, temp, CompareByAvg);
-		delete[] temp;
+	if (filteredSize == 0) {
+		delete[] filtered;
+		throw std::runtime_error("No students found in the specified group");
 	}
+
+	FullStudent* temp = new FullStudent[filteredSize];
+	MergeSort(filtered, 0, filteredSize, temp, CompareByAvg);
+	delete[] temp;
+
 
 	return filtered;
 }
 
-int32_t CountGroup(std::ifstream& fin, int32_t size_p) {
-	int32_t* groups = new int32_t[size_p];
-	int32_t count = 0;
+void BinToTxt(std::fstream& binFile, std::fstream& txtFile) {
 
-	std::string str;
-	fin.clear();
-	fin.seekg(0, std::ios::beg);
+	std::string line;
+	while (std::getline(binFile, line)) {
+		if (line.empty()) continue;
+		std::stringstream ss(line);
+		std::string name, surname, patronymic, group, recordBook, gradeMA, gradeGEO, gradePROG;
+		std::getline(ss, name, ';');
+		std::getline(ss, surname, ';');
+		std::getline(ss, patronymic, ';');
+		std::getline(ss, group, ';');
+		std::getline(ss, recordBook, ';');
+		std::getline(ss, gradeMA, ';');
+		std::getline(ss, gradeGEO, ';');
+		std::getline(ss, gradePROG, ';');
 
-	while (std::getline(fin, str)) {
-		std::istringstream iss(str);
-		std::string groupStr;
-
-		if (std::getline(iss, groupStr, ';')) {
-			int32_t group = std::stoi(groupStr);
-
-			bool noyes = false;
-			for (int32_t i = 0; i < count; ++i) {
-				if (groups[i] == group) {
-					noyes = true;
-					break;
-				}
-			}
-
-			if (!noyes && count < size_p) {
-				groups[count++] = group;
-			}
-		}
+		txtFile << "Name: " << name << ", Surname: " << surname << ", Patronymic: " << patronymic
+			<< ", Group: " << group << ", Record Book: " << recordBook
+			<< ", Grades: MA=" << gradeMA << ", GEO=" << gradeGEO << ", PROG=" << gradePROG << "\n";
 	}
 
-	delete[] groups;
-	return count;
+	binFile.close();
+	txtFile.close();
 }
 
-void GoodStud(FullStudent* student, int32_t size) {
-	bool find{ false };
-	std::fstream out("GoodStudents.bin", std::ios::out, std::ios::binary);
-	for (int32_t i{}; i < size; ++i) {
-		if (student[i].gradeMA > 7 && student[i].gradeGEO > 7 && student[i].gradePROG > 7) {
-			find = true;
-			WriteString(out, student[i].surname);
-			out.write(reinterpret_cast<char*>(&student[i].group), sizeof(student[i].group));
-			out.write(reinterpret_cast<char*>(&student[i].recordBook), sizeof(student[i].recordBook));
-			std::cout << "\nList of the greatests students:\nSurname: " << student[i].surname << "; Group: "
-				<< student[i].group << "; ID: " << student[i].recordBook << ".\n";
-		}
-	}
-	if (!find) {
-		std::cout << "No greatest students..." << std::endl;
-	}
+void PrintBinary(std::fstream& bin) {
+	bin.seekg(0, std::ios::end);
+	size_t arraySize = static_cast<size_t>(bin.tellg());
+	bin.seekg(0, std::ios::beg);
+	char* cText = new char[arraySize];
+	bin.read(cText, arraySize);
+	std::string binText{ cText, arraySize };
+	delete[] cText;
+	std::cout << binText << '\n';
 }
 
-void BinToTxt(const std::string& binFile, const std::string& txtFile) {
-	std::ifstream fin(binFile, std::ios::binary);
-	CheckFile(fin);
+void SortByAverage(FullStudent* arr, int32_t size) {
+	std::sort(arr, arr + size, CompareByAvg);
+}
 
-	std::fstream fout(txtFile);
-	CheckOutputFile(fout);
-
-	while (fin.peek() != EOF) {
-		FullStudent s;
-
-		fin.read(reinterpret_cast<char*>(&s.group), sizeof(s.group));
-		fin.read(reinterpret_cast<char*>(&s.recordBook), sizeof(s.recordBook));
-
-		int32_t temp{};
-		fin.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-		s.surname.resize(temp);
-		fin.read(&s.surname[0], temp);
-		fin.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-		s.name.resize(temp);
-		fin.read(&s.name[0], temp);
-		fin.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-		s.patronymic.resize(temp);
-		fin.read(&s.patronymic[0], temp);
-		fin.read(reinterpret_cast<char*>(&s.gradeMA), sizeof(s.gradeMA));
-		fin.read(reinterpret_cast<char*>(&s.gradeGEO), sizeof(s.gradeGEO));
-		fin.read(reinterpret_cast<char*>(&s.gradePROG), sizeof(s.gradePROG));
-
-		fout << s.group << ";" << s.recordBook << ";" << s.surname << ";"
-			<< s.name << ";" << s.patronymic << ";" << s.gradeMA << ";"
-			<< s.gradeGEO << ";" << s.gradePROG << std::endl;
+void ValidateGrades(GradeRecord& student)
+{
+	if (student.gradeMA < 2 || student.gradeMA > 10 || student.gradeGEO < 2 || student.gradeGEO > 10 || student.gradePROG < 2 || student.gradePROG > 10)
+	{
+		throw std::runtime_error("Grades must be between 2 and 10.");
 	}
-
-	fin.close();
-	fout.close();
 }

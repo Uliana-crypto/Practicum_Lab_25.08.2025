@@ -68,9 +68,12 @@ void PrintGradeSheet(FullStudent*, int32_t, int32_t);
 void PrintAvgGrade(FullStudent*, int32_t, int32_t);
 FullStudent* GenerateGroupGradeSheet(FullStudent*, int32_t, int32_t, int32_t&);
 FullStudent* GenerateGroupGradeAvg(FullStudent*, int32_t, int32_t, int32_t&);
-int32_t CountGroup(std::ifstream&, int32_t);
-void GoodStud(FullStudent*, int32_t);
 void ReadFullStudFromBin(std::fstream&, FullStudent*, int32_t);
-void BinToTxt(const std::string&, const std::string&);
+void BinToTxt(std::fstream&, std::fstream&);
+void PrintBinary(std::fstream&);
+void WriteStudentText(std::fstream&);
+void SortByAverage(FullStudent*, int32_t);
+void ValidateGrades(GradeRecord&);
 
 #endif
+
